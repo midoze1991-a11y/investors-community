@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<!-- Investors Community: ملف واحد فيه كلشي (الموقع + SQL). حط URL ومفتاح anon فأعلى السكريبت، وانشر على GitHub Pages أو Vercel. -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مجتمع المستثمرين</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#f5f6f8; --card:#fff; --ink:#1b2430; --muted:#6a7585; --line:#e3e7ee;
+  --brand:#0f6b5c; --brand-d:#0a4f44; --brand-l:#e3f3ef; --gold:#b7791f; --gold-l:#fbf1dd;
+  --danger:#b3261e; --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:'Tajawal',system-ui,sans-serif;font-size:16px;line-height:1.6}
+body{padding-bottom:78px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+button:disabled{opacity:.5;cursor:default}
+header{background:var(--brand);color:#fff;padding:12px 16px 10px;position:sticky;top:0;z-index:5}
+header .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+header h1{font-size:19px;font-weight:700}
+header p{font-size:13px;opacity:.85}
+.hright{display:flex;gap:6px;align-items:center;flex:none}
+.langs{display:flex;gap:4px}
+.hbtn{color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:8px;padding:2px 9px;font-size:13px;font-weight:700}
+.hbtn.on{background:#fff;color:var(--brand-d)}
+main{max-width:720px;margin:0 auto;padding:14px}
+.disclaimer{background:var(--gold-l);color:#6b4a0f;border:1px solid #ecd9ad;border-radius:var(--radius);padding:10px 12px;font-size:13px;margin-bottom:12px}
+.search{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-bottom:10px}
+.filters{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.filters select{padding:9px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:14px;width:100%}
+.count{font-size:13px;color:var(--muted);margin-bottom:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.card.click{cursor:pointer}
+.card.click:active{background:#fafbfc}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.tag{display:inline-block;background:var(--brand-l);color:var(--brand-d);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:500}
+.tag.gray{background:#eef0f4;color:#4a5566}
+.tag.warn{background:var(--gold-l);color:#6b4a0f}
+.badge{color:var(--brand);font-size:12px;font-weight:700}
+.card h3{font-size:17px;margin:6px 0 4px}
+.card p.desc{color:var(--muted);font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{font-size:13px;color:var(--muted)}
+.amount{font-weight:700;color:var(--ink)}
+.btn{background:var(--brand);color:#fff;border-radius:12px;padding:11px 18px;font-weight:700}
+.btn:active{background:var(--brand-d)}
+.btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand)}
+.btn.danger{background:#fff;color:var(--danger);border:1px solid var(--danger)}
+.btn.small{padding:6px 12px;font-size:14px;border-radius:10px}
+.btn.on{background:var(--brand-l);color:var(--brand-d);border:1px solid var(--brand)}
+.btn.block{width:100%}
+label{display:block;font-weight:500;margin:12px 0 4px;font-size:14px}
+input[type=text],input[type=email],input[type=password],input[type=number],select.f,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+textarea{min-height:90px;resize:vertical}
+.err{color:var(--danger);font-size:13px;margin-top:4px;min-height:18px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:6;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:10px 4px 8px;font-size:12px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button.active{color:var(--brand);font-weight:700}
+.overlay{position:fixed;inset:0;background:rgba(15,25,35,.5);z-index:10;display:none;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.sheet{background:#fff;width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:16px}
+.sheet .close{float:inline-end;font-size:22px;color:var(--muted);padding:0 6px}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.kv div{background:var(--bg);border-radius:10px;padding:8px 10px;font-size:13px}
+.kv b{display:block;font-size:15px}
+.contact{background:var(--brand-l);border-radius:12px;padding:10px 12px;margin:10px 0;font-size:14px}
+.pending{background:var(--gold-l);border-radius:12px;padding:10px 12px;margin:10px 0;font-size:14px;color:#6b4a0f}
+.reqform{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
+.comment{border-top:1px solid var(--line);padding:8px 0;font-size:14px;overflow-wrap:anywhere}
+.comment .who{font-weight:700;font-size:13px}
+.room{display:flex;align-items:center;gap:12px}
+.room .ic{width:42px;height:42px;border-radius:12px;background:var(--brand-l);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+.msg{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:8px;max-width:88%;overflow-wrap:anywhere}
+.msg.me{background:var(--brand-l);border-color:#c5e4dc;margin-inline-start:auto}
+.msg .who{font-size:12px;font-weight:700;color:var(--brand-d)}
+.chatbox{display:flex;gap:8px;position:sticky;bottom:0;background:#fff;padding-top:8px}
+.chatbox input{flex:1;padding:11px 12px;border:1px solid var(--line);border-radius:12px}
+.empty{text-align:center;color:var(--muted);padding:30px 0}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1b2430;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:20;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+.setup{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;direction:rtl;text-align:start}
+.setup ol{padding-inline-start:20px;margin:10px 0;font-size:14px}
+.setup textarea{margin-top:8px;font-family:ui-monospace,Menlo,monospace}
+.setup code{background:var(--bg);padding:1px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <h1 id="appname"></h1>
+    <div class="hright"><div class="langs" id="langs"></div><span id="authbtn"></span></div>
+  </div>
+  <p id="tagline"></p>
+</header>
+
+<main id="app"></main>
+<nav id="nav"></nav>
+
+<div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================
+   CONFIG : paste your own values (Supabase > Project Settings > API)
+   ===================================================== */
+var SUPABASE_URL = 'PASTE_YOUR_SUPABASE_URL_HERE';        // e.g. https://abcdxyz.supabase.co
+var SUPABASE_ANON_KEY = 'PASTE_YOUR_ANON_PUBLIC_KEY_HERE'; // the "anon public" key (safe in the browser)
+var SUPPORT_CONTACT = 'WhatsApp: +212 6•• •• •• ••';        // where people ask to top up credits
+</script>
+<script type="text/plain" id="schema-sql">
+-- =====================================================
+--  Investors Community : Supabase schema (run once in SQL Editor)
+-- =====================================================
+
+create extension if not exists pgcrypto;
+
+-- ---------- profiles ----------
+create table if not exists profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  name text not null default '',
+  role text not null default 'investor' check (role in ('investor','owner')),
+  country text,
+  interests text,
+  credits int not null default 3 check (credits >= 0),   -- 3 free contact credits at signup
+  verified boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create or replace function handle_new_user() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into profiles(id, name)
+  values (new.id, left(coalesce(new.raw_user_meta_data->>'name',''), 40));
+  return new;
+end $$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created after insert on auth.users
+for each row execute function handle_new_user();
+
+-- ---------- projects ----------
+create table if not exists projects (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references profiles(id) on delete cascade,
+  title text not null check (char_length(title) between 4 and 80),
+  sector text not null,
+  country text not null,
+  amount numeric not null check (amount > 0),
+  description text not null check (char_length(description) between 20 and 800),
+  lang text,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  created_at timestamptz not null default now()
+);
+
+-- the owner's contact lives in its own table: never readable by other users directly
+create table if not exists project_contacts (
+  project_id uuid primary key references projects(id) on delete cascade,
+  contact text not null check (char_length(contact) between 3 and 120)
+);
+
+create table if not exists interests (
+  project_id uuid not null references projects(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  primary key (project_id, user_id)
+);
+
+create table if not exists comments (
+  id uuid primary key default gen_random_uuid(),
+  project_id uuid not null references projects(id) on delete cascade,
+  user_id uuid not null references profiles(id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 300),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists room_messages (
+  id uuid primary key default gen_random_uuid(),
+  sector text not null,
+  user_id uuid not null references profiles(id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 500),
+  created_at timestamptz not null default now()
+);
+create index if not exists room_messages_sector_idx on room_messages(sector, created_at desc);
+
+create table if not exists contact_requests (
+  id uuid primary key default gen_random_uuid(),
+  project_id uuid not null references projects(id) on delete cascade,
+  requester_id uuid not null references profiles(id) on delete cascade,
+  message text not null,
+  requester_contact text not null,
+  status text not null default 'pending' check (status in ('pending','accepted','declined')),
+  created_at timestamptz not null default now(),
+  unique (project_id, requester_id)
+);
+
+-- ---------- safe public views ----------
+create or replace view public_profiles as
+  select id, name, role, country, verified from profiles;
+
+create or replace view project_stats with (security_invoker = true) as
+  select p.id as project_id,
+         (select count(*) from interests i where i.project_id = p.id) as interested,
+         (select count(*) from comments c where c.project_id = p.id) as comments
+  from projects p;
+
+-- ---------- row level security ----------
+alter table profiles          enable row level security;
+alter table projects          enable row level security;
+alter table project_contacts  enable row level security;
+alter table interests         enable row level security;
+alter table comments          enable row level security;
+alter table room_messages     enable row level security;
+alter table contact_requests  enable row level security;
+
+-- profiles: a user reads/updates only their own row, and only these columns
+revoke all on profiles from anon, authenticated;
+grant select on profiles to authenticated;
+grant update (name, role, country, interests) on profiles to authenticated;
+drop policy if exists profiles_select_own on profiles;
+create policy profiles_select_own on profiles for select to authenticated using (id = auth.uid());
+drop policy if exists profiles_update_own on profiles;
+create policy profiles_update_own on profiles for update to authenticated using (id = auth.uid()) with check (id = auth.uid());
+
+grant select on public_profiles to anon, authenticated;
+
+-- projects: approved ones are public; owners also see their own pending ones
+revoke insert, update on projects from anon, authenticated;
+grant insert (owner_id, title, sector, country, amount, description, lang) on projects to authenticated;
+drop policy if exists projects_select on projects;
+create policy projects_select on projects for select to anon, authenticated
+  using (status = 'approved' or owner_id = auth.uid());
+drop policy if exists projects_insert on projects;
+create policy projects_insert on projects for insert to authenticated with check (owner_id = auth.uid());
+drop policy if exists projects_delete on projects;
+create policy projects_delete on projects for delete to authenticated using (owner_id = auth.uid());
+
+-- project_contacts: owner only (others get it through get_owner_contact after acceptance)
+drop policy if exists contacts_owner on project_contacts;
+create policy contacts_owner on project_contacts for all to authenticated
+  using (exists (select 1 from projects p where p.id = project_id and p.owner_id = auth.uid()))
+  with check (exists (select 1 from projects p where p.id = project_id and p.owner_id = auth.uid()));
+
+-- interests
+drop policy if exists interests_select on interests;
+create policy interests_select on interests for select to anon, authenticated using (true);
+drop policy if exists interests_insert on interests;
+create policy interests_insert on interests for insert to authenticated with check (user_id = auth.uid());
+drop policy if exists interests_delete on interests;
+create policy interests_delete on interests for delete to authenticated using (user_id = auth.uid());
+
+-- comments
+drop policy if exists comments_select on comments;
+create policy comments_select on comments for select to anon, authenticated
+  using (exists (select 1 from projects p where p.id = project_id));
+drop policy if exists comments_insert on comments;
+create policy comments_insert on comments for insert to authenticated
+  with check (user_id = auth.uid() and exists (select 1 from projects p where p.id = project_id));
+drop policy if exists comments_delete on comments;
+create policy comments_delete on comments for delete to authenticated using (user_id = auth.uid());
+
+-- room messages
+drop policy if exists rooms_select on room_messages;
+create policy rooms_select on room_messages for select to anon, authenticated using (true);
+drop policy if exists rooms_insert on room_messages;
+create policy rooms_insert on room_messages for insert to authenticated with check (user_id = auth.uid());
+
+-- contact_requests: visible to the requester and to the project owner; written only by the functions below
+revoke insert, update, delete on contact_requests from anon, authenticated;
+drop policy if exists requests_select on contact_requests;
+create policy requests_select on contact_requests for select to authenticated
+  using (requester_id = auth.uid()
+         or exists (select 1 from projects p where p.id = project_id and p.owner_id = auth.uid()));
+
+-- ---------- business functions ----------
+-- Send a contact request: costs 1 credit (atomic: any error rolls the credit back)
+create or replace function send_contact_request(p_project uuid, p_message text, p_contact text)
+returns void language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); v_owner uuid;
+begin
+  if uid is null then raise exception 'auth_required'; end if;
+  select owner_id into v_owner from projects where id = p_project and status = 'approved';
+  if v_owner is null then raise exception 'not_found'; end if;
+  if v_owner = uid then raise exception 'own_project'; end if;
+  if char_length(trim(p_message)) < 10 or char_length(trim(p_message)) > 400
+     or char_length(trim(p_contact)) < 3 or char_length(trim(p_contact)) > 120 then
+    raise exception 'invalid';
+  end if;
+  update profiles set credits = credits - 1 where id = uid and credits >= 1;
+  if not found then raise exception 'no_credits'; end if;
+  insert into contact_requests(project_id, requester_id, message, requester_contact)
+  values (p_project, uid, trim(p_message), trim(p_contact));
+end $$;
+
+-- Owner accepts or declines (a declined request refunds the credit)
+create or replace function respond_contact_request(p_request uuid, p_accept boolean)
+returns void language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); v_requester uuid;
+begin
+  if uid is null then raise exception 'auth_required'; end if;
+  update contact_requests r
+     set status = case when p_accept then 'accepted' else 'declined' end
+    from projects p
+   where r.id = p_request and r.project_id = p.id and p.owner_id = uid and r.status = 'pending'
+  returning r.requester_id into v_requester;
+  if not found then raise exception 'not_found'; end if;
+  if not p_accept then
+    update profiles set credits = credits + 1 where id = v_requester;
+  end if;
+end $$;
+
+-- The requester gets the owner's contact only once the request is accepted
+create or replace function get_owner_contact(p_project uuid)
+returns text language sql security definer stable set search_path = public as $$
+  select c.contact
+    from project_contacts c
+    join contact_requests r on r.project_id = c.project_id
+   where c.project_id = p_project and r.requester_id = auth.uid() and r.status = 'accepted'
+   limit 1;
+$$;
+
+revoke all on function send_contact_request(uuid, text, text) from public, anon;
+revoke all on function respond_contact_request(uuid, boolean) from public, anon;
+revoke all on function get_owner_contact(uuid) from public, anon;
+grant execute on function send_contact_request(uuid, text, text) to authenticated;
+grant execute on function respond_contact_request(uuid, boolean) to authenticated;
+grant execute on function get_owner_contact(uuid) to authenticated;
+
+-- =====================================================
+--  ADMIN (you), run manually in the SQL Editor:
+--    approve a project :  update projects set status='approved' where id='...';
+--    add credits       :  update profiles set credits = credits + 10 where id='...';
+--    verified badge    :  update profiles set verified = true where id='...';
+-- =====================================================
+</script>
+<script>
+(function(){
+'use strict';
+
+/* ================= i18n ================= */
+var D={
+ar:{
+ appName:'مجتمع المستثمرين',tagline:'اعرض مشروعك، تبادل الخبرات، والاتفاق يتم خارج المنصة',
+ tab_home:'المشاريع',tab_rooms:'النقاش',tab_post:'انشر مشروعا',tab_profile:'ملفي',
+ disclaimer:'المنصة للتعارف وتبادل الخبرات فقط. لا تتدخل في أي اتفاق أو تحويل مالي ولا تقدم نصائح استثمارية. تحقق دائما من الطرف الآخر قبل أي التزام.',
+ searchPh:'ابحث عن مشروع...',allSectors:'كل القطاعات',allCountries:'كل الدول',
+ amt_all:'كل المبالغ',amt_a:'أقل من 10,000$',amt_b:'10,000$ – 100,000$',amt_c:'أكثر من 100,000$',
+ nProjects:function(n){return n+' مشروع';},noResults:'ما كاين حتى مشروع بهاد المعايير.',loading:'جاري التحميل...',
+ verified:'✓ موثق',mine:'مشروعك',pendingTag:'قيد المراجعة',pendingNote:'مشروعك قيد المراجعة. غيظهر للجميع بعد الموافقة عليه.',
+ askedAmount:'المبلغ المطلوب',owner:'صاحب العرض',
+ interested:'مهتم',comments:'التعليقات',noComments:'ما كاين حتى تعليق.',commentPh:'اكتب تعليقا أو سؤالا...',publish:'نشر',
+ offPlatform:'أي اتفاق كيتم خارج المنصة وعلى مسؤوليتك. تحقق من الطرف الآخر وما تحولش فلوس قبل التأكد.',
+ roomsHint:'اختر غرفة للنقاش حسب القطاع',roomName:function(s){return 'غرفة '+s;},
+ back:'رجوع',roomNote:'النقاش عام. ما تنشرش معلومات بنكية أو شخصية حساسة.',firstStart:'كن أول من يبدأ النقاش.',msgPh:'اكتب رسالتك...',send:'إرسال',
+ postTitle:'انشر مشروعك',fTitle:'عنوان المشروع',fSector:'القطاع',fCountry:'الدولة',fAmount:'المبلغ المطلوب (بالدولار)',fDesc:'وصف المشروع',fContact:'وسيلة التواصل (غتبان فقط لمن تقبل طلبو)',
+ phTitle:'مثال: مزرعة، تطبيق، متجر...',phAmount:'50000',phDesc:'شنو هو المشروع؟ فين وصلتي؟ شنو كتحتاج؟',phContact:'واتساب، إيميل، تيليغرام...',
+ submit:'نشر المشروع',e1:'كتب عنوانا واضحا (4 حروف على الأقل).',e2:'دخل المبلغ المطلوب.',e3:'الوصف قصير بزاف، شرح المشروع أكثر (20 حرفا على الأقل).',e4:'دخل وسيلة التواصل.',posted:'تم إرسال مشروعك للمراجعة',
+ profTitle:'ملفي الشخصي',pName:'الاسم',iAm:'أنا',investor:'مستثمر',projOwner:'صاحب مشروع',chooseCountry:'اختر الدولة',interests:'اهتماماتي',intPh:'مثال: عقار، طاقة',save:'حفظ',saved:'تم الحفظ',
+ verifiedNote:'شارة "موثق" كتعطيها الإدارة بعد التحقق من الهوية.',myProjects:function(n){return 'مشاريعي ('+n+')';},noneYet:'ما نشرتي حتى مشروع بعد.',
+ credits:'رصيد طلبات التواصل',nCredits:function(n){return n+' رصيد';},topupReal:'لشحن الرصيد تواصل مع الإدارة: ',
+ cBtn:'طلب التواصل',cOwn:'هذا مشروعك. طلبات التواصل كتوصلك فـ "ملفي".',cFormTitle:'أرسل طلب تواصل',cCost:function(n){return 'يخصم رصيدا واحدا (يرجع إذا رفض صاحب المشروع). رصيدك: '+n;},
+ cMsg:'رسالة تعريف قصيرة',cMsgPh:'من أنا؟ ولماذا يهمني هذا المشروع؟',cMine:'وسيلة تواصلي (غتتشارك فقط إذا قبل صاحب المشروع)',cMinePh:'واتساب أو إيميل',cSend:'إرسال الطلب',
+ cErrMsg:'كتب رسالة قصيرة (10 حروف على الأقل).',cErrContact:'دخل وسيلة التواصل ديالك.',cSent:'تم إرسال الطلب',
+ cPending:'طلبك قيد الانتظار. صاحب المشروع خاصو يقبل قبل ما تتبادلو وسائل التواصل.',
+ cDeclined:'رفض صاحب المشروع الطلب وتم إرجاع الرصيد.',
+ cAccepted:'تم قبول الطلب. وسيلة التواصل مع صاحب المشروع (خارج المنصة):',cShared:'وسيلة التواصل ديالك تشاركات معاه.',
+ myRequests:'طلبات التواصل',noRequests:'ما كاين حتى طلب.',stPending:'قيد الانتظار',stAccepted:'مقبول',stDeclined:'مرفوض',
+ incoming:'طلبات واردة',outgoing:'طلبات أرسلتها',accept:'قبول',decline:'رفض',fromWho:'من',theirContact:'وسيلة تواصله:',
+ login:'دخول',signup:'حساب جديد',logout:'خروج',email:'البريد الإلكتروني',password:'كلمة المرور (6 أحرف على الأقل)',
+ loginTitle:'تسجيل الدخول',signupTitle:'إنشاء حساب',noAccount:'ما عندكش حساب؟ سجل',haveAccount:'عندك حساب؟ دخل',
+ authNeeded:'سجل الدخول أولا.',confirmEmail:'تم إنشاء الحساب. تفقد بريدك لتأكيد الإيميل ثم سجل الدخول.',authFill:'دخل الإيميل وكلمة المرور.',
+ errNoCredits:'رصيدك ما كافيش. اشحن رصيدا من "ملفي".',errDup:'سبق وبعثتي طلبا لهاد المشروع.',errOwn:'هذا مشروعك.',errGeneric:'وقع خطأ',
+ setupTitle:'خاص الإعداد',setupText:'حط رابط Supabase والمفتاح فأعلى ملف index.html. شوف ملف SETUP.md.',
+ sectors:{realestate:'عقار',agri:'فلاحة',tech:'تكنولوجيا',ecom:'تجارة إلكترونية',energy:'طاقة',tourism:'سياحة',industry:'صناعة',edu:'تعليم'},
+ countries:{ma:'المغرب',ae:'الإمارات',sa:'السعودية',eg:'مصر',tr:'تركيا',fr:'فرنسا',qa:'قطر',jo:'الأردن'}
+},
+fr:{
+ appName:'Communauté des investisseurs',tagline:'Présentez votre projet, échangez, et concluez en dehors de la plateforme',
+ tab_home:'Projets',tab_rooms:'Discussion',tab_post:'Publier',tab_profile:'Profil',
+ disclaimer:'La plateforme sert uniquement à se rencontrer et échanger. Elle n\'intervient dans aucun accord ni transfert d\'argent et ne donne pas de conseil en investissement. Vérifiez toujours l\'autre partie avant de vous engager.',
+ searchPh:'Rechercher un projet...',allSectors:'Tous les secteurs',allCountries:'Tous les pays',
+ amt_all:'Tous les montants',amt_a:'Moins de 10 000 $',amt_b:'10 000 $ – 100 000 $',amt_c:'Plus de 100 000 $',
+ nProjects:function(n){return n+(n>1?' projets':' projet');},noResults:'Aucun projet ne correspond à ces critères.',loading:'Chargement...',
+ verified:'✓ Vérifié',mine:'Votre projet',pendingTag:'En vérification',pendingNote:'Votre projet est en cours de vérification. Il sera visible de tous après approbation.',
+ askedAmount:'Montant recherché',owner:'Porteur',
+ interested:'Intéressé',comments:'Commentaires',noComments:'Aucun commentaire.',commentPh:'Écrivez un commentaire ou une question...',publish:'Publier',
+ offPlatform:'Tout accord se fait en dehors de la plateforme, sous votre responsabilité. Vérifiez l\'autre partie et ne transférez pas d\'argent avant d\'être sûr.',
+ roomsHint:'Choisissez un salon par secteur',roomName:function(s){return 'Salon '+s;},
+ back:'Retour',roomNote:'Discussion publique. Ne partagez pas d\'informations bancaires ou personnelles sensibles.',firstStart:'Soyez le premier à lancer la discussion.',msgPh:'Écrivez votre message...',send:'Envoyer',
+ postTitle:'Publiez votre projet',fTitle:'Titre du projet',fSector:'Secteur',fCountry:'Pays',fAmount:'Montant recherché (en dollars)',fDesc:'Description du projet',fContact:'Moyen de contact (visible uniquement pour ceux que vous acceptez)',
+ phTitle:'Ex. : ferme, application, boutique...',phAmount:'50000',phDesc:'Quel est le projet ? Où en êtes-vous ? De quoi avez-vous besoin ?',phContact:'WhatsApp, e-mail, Telegram...',
+ submit:'Publier le projet',e1:'Saisissez un titre clair (4 caractères minimum).',e2:'Saisissez le montant recherché.',e3:'Description trop courte, détaillez davantage (20 caractères minimum).',e4:'Indiquez votre moyen de contact.',posted:'Projet envoyé pour vérification',
+ profTitle:'Mon profil',pName:'Nom',iAm:'Je suis',investor:'Investisseur',projOwner:'Porteur de projet',chooseCountry:'Choisir le pays',interests:'Mes centres d\'intérêt',intPh:'Ex. : immobilier, énergie',save:'Enregistrer',saved:'Enregistré',
+ verifiedNote:'Le badge « Vérifié » est attribué par l\'administration après vérification d\'identité.',myProjects:function(n){return 'Mes projets ('+n+')';},noneYet:'Vous n\'avez encore publié aucun projet.',
+ credits:'Crédits de mise en contact',nCredits:function(n){return n+(n>1?' crédits':' crédit');},topupReal:'Pour recharger vos crédits, contactez l\'administration : ',
+ cBtn:'Demander le contact',cOwn:'C\'est votre projet. Les demandes de contact arrivent dans « Profil ».',cFormTitle:'Envoyer une demande de contact',cCost:function(n){return 'Coûte 1 crédit (remboursé si le porteur refuse). Votre solde : '+n;},
+ cMsg:'Court message de présentation',cMsgPh:'Qui êtes-vous ? Pourquoi ce projet vous intéresse ?',cMine:'Mon moyen de contact (partagé seulement si le porteur accepte)',cMinePh:'WhatsApp ou e-mail',cSend:'Envoyer la demande',
+ cErrMsg:'Écrivez un court message (10 caractères minimum).',cErrContact:'Indiquez votre moyen de contact.',cSent:'Demande envoyée',
+ cPending:'Demande en attente. Le porteur doit accepter avant l\'échange des contacts.',
+ cDeclined:'Le porteur a refusé la demande et votre crédit a été remboursé.',
+ cAccepted:'Demande acceptée. Contact du porteur (hors plateforme) :',cShared:'Votre contact lui a été communiqué.',
+ myRequests:'Demandes de contact',noRequests:'Aucune demande.',stPending:'En attente',stAccepted:'Acceptée',stDeclined:'Refusée',
+ incoming:'Demandes reçues',outgoing:'Demandes envoyées',accept:'Accepter',decline:'Refuser',fromWho:'De',theirContact:'Son contact :',
+ login:'Connexion',signup:'Inscription',logout:'Déconnexion',email:'E-mail',password:'Mot de passe (6 caractères minimum)',
+ loginTitle:'Se connecter',signupTitle:'Créer un compte',noAccount:'Pas de compte ? Inscrivez-vous',haveAccount:'Déjà un compte ? Connectez-vous',
+ authNeeded:'Connectez-vous d\'abord.',confirmEmail:'Compte créé. Vérifiez votre e-mail pour confirmer, puis connectez-vous.',authFill:'Saisissez l\'e-mail et le mot de passe.',
+ errNoCredits:'Crédits insuffisants. Rechargez depuis « Profil ».',errDup:'Vous avez déjà envoyé une demande pour ce projet.',errOwn:'C\'est votre projet.',errGeneric:'Une erreur est survenue',
+ setupTitle:'Configuration requise',setupText:'Collez l\'URL Supabase et la clé en haut du fichier index.html. Voir SETUP.md.',
+ sectors:{realestate:'Immobilier',agri:'Agriculture',tech:'Technologie',ecom:'E-commerce',energy:'Énergie',tourism:'Tourisme',industry:'Industrie',edu:'Éducation'},
+ countries:{ma:'Maroc',ae:'Émirats',sa:'Arabie saoudite',eg:'Égypte',tr:'Turquie',fr:'France',qa:'Qatar',jo:'Jordanie'}
+},
+en:{
+ appName:'Investors Community',tagline:'Showcase your project, exchange experience, and close deals off-platform',
+ tab_home:'Projects',tab_rooms:'Discuss',tab_post:'Post',tab_profile:'Profile',
+ disclaimer:'This platform is for networking and sharing experience only. It takes no part in any agreement or money transfer and gives no investment advice. Always verify the other party before committing.',
+ searchPh:'Search projects...',allSectors:'All sectors',allCountries:'All countries',
+ amt_all:'Any amount',amt_a:'Under $10,000',amt_b:'$10,000 – $100,000',amt_c:'Over $100,000',
+ nProjects:function(n){return n+(n===1?' project':' projects');},noResults:'No projects match these filters.',loading:'Loading...',
+ verified:'✓ Verified',mine:'Your project',pendingTag:'Under review',pendingNote:'Your project is under review. It becomes visible to everyone once approved.',
+ askedAmount:'Amount sought',owner:'Posted by',
+ interested:'Interested',comments:'Comments',noComments:'No comments yet.',commentPh:'Write a comment or question...',publish:'Post',
+ offPlatform:'Any agreement happens off-platform, at your own risk. Verify the other party and do not send money before you are sure.',
+ roomsHint:'Pick a room by sector',roomName:function(s){return s+' room';},
+ back:'Back',roomNote:'Public discussion. Do not share banking or sensitive personal details.',firstStart:'Be the first to start the discussion.',msgPh:'Write your message...',send:'Send',
+ postTitle:'Post your project',fTitle:'Project title',fSector:'Sector',fCountry:'Country',fAmount:'Amount sought (USD)',fDesc:'Project description',fContact:'Contact method (shown only to people you accept)',
+ phTitle:'e.g. farm, app, shop...',phAmount:'50000',phDesc:'What is the project? Where are you now? What do you need?',phContact:'WhatsApp, email, Telegram...',
+ submit:'Post project',e1:'Enter a clear title (at least 4 characters).',e2:'Enter the amount sought.',e3:'Description too short, add more detail (at least 20 characters).',e4:'Enter your contact method.',posted:'Project sent for review',
+ profTitle:'My profile',pName:'Name',iAm:'I am',investor:'Investor',projOwner:'Project owner',chooseCountry:'Choose country',interests:'My interests',intPh:'e.g. real estate, energy',save:'Save',saved:'Saved',
+ verifiedNote:'The "Verified" badge is granted by the administration after identity checks.',myProjects:function(n){return 'My projects ('+n+')';},noneYet:'You have not posted any project yet.',
+ credits:'Contact credits',nCredits:function(n){return n+(n===1?' credit':' credits');},topupReal:'To top up your credits, contact the administration: ',
+ cBtn:'Request contact',cOwn:'This is your project. Contact requests arrive in "Profile".',cFormTitle:'Send a contact request',cCost:function(n){return 'Costs 1 credit (refunded if the owner declines). Your balance: '+n;},
+ cMsg:'Short introduction',cMsgPh:'Who are you? Why does this project interest you?',cMine:'My contact (shared only if the owner accepts)',cMinePh:'WhatsApp or email',cSend:'Send request',
+ cErrMsg:'Write a short message (at least 10 characters).',cErrContact:'Enter your contact method.',cSent:'Request sent',
+ cPending:'Request pending. The owner must accept before contacts are exchanged.',
+ cDeclined:'The owner declined the request and your credit was refunded.',
+ cAccepted:'Request accepted. Owner contact (off-platform):',cShared:'Your contact was shared with them.',
+ myRequests:'Contact requests',noRequests:'No requests.',stPending:'Pending',stAccepted:'Accepted',stDeclined:'Declined',
+ incoming:'Received requests',outgoing:'Sent requests',accept:'Accept',decline:'Decline',fromWho:'From',theirContact:'Their contact:',
+ login:'Log in',signup:'Sign up',logout:'Log out',email:'Email',password:'Password (at least 6 characters)',
+ loginTitle:'Log in',signupTitle:'Create an account',noAccount:'No account? Sign up',haveAccount:'Already have an account? Log in',
+ authNeeded:'Please log in first.',confirmEmail:'Account created. Check your email to confirm, then log in.',authFill:'Enter your email and password.',
+ errNoCredits:'Not enough credits. Top up from "Profile".',errDup:'You already sent a request for this project.',errOwn:'This is your project.',errGeneric:'Something went wrong',
+ setupTitle:'Setup required',setupText:'Paste your Supabase URL and key at the top of index.html. See SETUP.md.',
+ sectors:{realestate:'Real estate',agri:'Agriculture',tech:'Technology',ecom:'E-commerce',energy:'Energy',tourism:'Tourism',industry:'Industry',edu:'Education'},
+ countries:{ma:'Morocco',ae:'UAE',sa:'Saudi Arabia',eg:'Egypt',tr:'Turkey',fr:'France',qa:'Qatar',jo:'Jordan'}
+}};
+var SECTOR_KEYS=['realestate','agri','tech','ecom','energy','tourism','industry','edu'];
+var COUNTRY_KEYS=['ma','ae','sa','eg','tr','fr','qa','jo'];
+var ROOM_ICONS={realestate:'🏠',agri:'🌾',tech:'💻',ecom:'🛒',energy:'⚡',tourism:'🏝️',industry:'🏭',edu:'🎓'};
+var LANG_LABEL={ar:'ع',fr:'FR',en:'EN'};
+
+/* ================= helpers ================= */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function $(id){return document.getElementById(id);}
+function money(n){return '$'+Number(n).toLocaleString('en-US');}
+function uniq(a){return a.filter(function(x,i){return x&&a.indexOf(x)===i;});}
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+var toastT;
+function toast(m){var el=$('toast');el.textContent=m;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('show');},2800);}
+
+var state={
+  lang:lsGet('ic_lang')||'ar',
+  tab:'home',q:'',fs:'',fc:'',fa:'',
+  user:null,me:null,
+  projects:[],stats:{},names:{},pmap:{},myInterests:{},
+  comments:{},requests:[],ownerContacts:{},
+  openRoom:null,roomRows:[],roomTimer:null,
+  sheet:null,showForm:false,reqErr:'',authErr:'',
+  loading:true
+};
+if(!D[state.lang])state.lang='ar';
+function t(k){var v=D[state.lang][k];if(typeof v==='function')return v.apply(null,Array.prototype.slice.call(arguments,1));return v==null?k:v;}
+function sectorName(k){return D[state.lang].sectors[k]||k;}
+function countryName(k){return D[state.lang].countries[k]||k;}
+function nameOf(id){var p=state.names[id];return p&&p.name?p.name:'—';}
+function isVerified(id){var p=state.names[id];return !!(p&&p.verified);}
+function errMsg(e){
+  var m=(e&&e.message)||'';
+  if(m.indexOf('no_credits')>-1)return t('errNoCredits');
+  if(m.indexOf('duplicate')>-1||m.indexOf('unique')>-1)return t('errDup');
+  if(m.indexOf('own_project')>-1)return t('errOwn');
+  if(m.indexOf('auth_required')>-1)return t('authNeeded');
+  return t('errGeneric')+(m?' ('+m.slice(0,90)+')':'');
+}
+
+/* ================= supabase ================= */
+var sb=null;
+var configured=/^https:\/\/.+/.test(SUPABASE_URL)&&SUPABASE_ANON_KEY.indexOf('PASTE_')!==0&&typeof window.supabase!=='undefined';
+
+async function ensureNames(ids){
+  var need=uniq(ids).filter(function(i){return !state.names[i];});
+  if(!need.length)return;
+  var r=await sb.from('public_profiles').select('id,name,verified').in('id',need);
+  (r.data||[]).forEach(function(p){state.names[p.id]=p;});
+}
+async function loadProjects(){
+  var r=await sb.from('projects').select('id,owner_id,title,sector,country,amount,description,status,created_at').order('created_at',{ascending:false}).limit(200);
+  if(r.error){toast(errMsg(r.error));state.loading=false;render();return;}
+  state.projects=r.data;
+  r.data.forEach(function(p){state.pmap[p.id]=p;});
+  var st=await sb.from('project_stats').select('project_id,interested,comments');
+  state.stats={};
+  (st.data||[]).forEach(function(s){state.stats[s.project_id]={interested:Number(s.interested),comments:Number(s.comments)};});
+  await ensureNames(r.data.map(function(p){return p.owner_id;}));
+  state.loading=false;
+  render();
+}
+async function loadMe(){
+  if(!state.user){state.me=null;state.myInterests={};return;}
+  var r=await sb.from('profiles').select('id,name,role,country,interests,credits,verified').eq('id',state.user.id).maybeSingle();
+  state.me=r.data||null;
+  var i=await sb.from('interests').select('project_id').eq('user_id',state.user.id);
+  state.myInterests={};
+  (i.data||[]).forEach(function(x){state.myInterests[x.project_id]=true;});
+}
+async function loadRequests(){
+  if(!state.user){state.requests=[];return;}
+  var r=await sb.from('contact_requests').select('id,project_id,requester_id,message,requester_contact,status,created_at').order('created_at',{ascending:false});
+  state.requests=r.data||[];
+  await ensureNames(state.requests.map(function(x){return x.requester_id;}));
+  var missing=uniq(state.requests.map(function(x){return x.project_id;})).filter(function(id){return !state.pmap[id];});
+  if(missing.length){
+    var pr=await sb.from('projects').select('id,owner_id,title,sector,country,amount,description,status,created_at').in('id',missing);
+    (pr.data||[]).forEach(function(p){state.pmap[p.id]=p;});
+  }
+  var acc=state.requests.filter(function(x){return x.requester_id===state.user.id&&x.status==='accepted';});
+  await Promise.all(acc.map(async function(x){
+    var c=await sb.rpc('get_owner_contact',{p_project:x.project_id});
+    state.ownerContacts[x.project_id]=c.data||'';
+  }));
+}
+async function refreshAll(){
+  await loadMe();
+  await Promise.all([loadProjects(),loadRequests()]);
+  render();
+}
+
+/* ================= shell ================= */
+var TABS=[
+ {k:'home',svg:'<svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>'},
+ {k:'rooms',svg:'<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>'},
+ {k:'post',svg:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>'},
+ {k:'profile',svg:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>'}
+];
+function stopRoom(){if(state.roomTimer){clearInterval(state.roomTimer);state.roomTimer=null;}}
+function go(tab){
+  stopRoom();state.tab=tab;state.openRoom=null;
+  try{history.replaceState(null,'','#'+tab);}catch(e){}
+  render();window.scrollTo(0,0);
+  if(tab==='profile'&&state.user){loadMe().then(loadRequests).then(render);}
+}
+window.addEventListener('hashchange',function(){
+  var h=(location.hash||'').replace('#','');
+  if(TABS.some(function(x){return x.k===h;})&&h!==state.tab)go(h);
+});
+function applyLang(){
+  var rtl=state.lang==='ar';
+  document.documentElement.lang=state.lang;
+  document.documentElement.dir=rtl?'rtl':'ltr';
+  document.title=t('appName');
+  $('appname').textContent=t('appName');
+  $('tagline').textContent=t('tagline');
+  $('langs').innerHTML=['ar','fr','en'].map(function(l){return '<button class="hbtn'+(l===state.lang?' on':'')+'" data-lang="'+l+'">'+LANG_LABEL[l]+'</button>';}).join('');
+  $('authbtn').innerHTML=state.user?'<button class="hbtn" data-logout="1">'+esc(t('logout'))+'</button>':'<button class="hbtn on" data-auth="login">'+esc(t('login'))+'</button>';
+}
+function renderNav(){
+  $('nav').innerHTML=TABS.map(function(x){
+    return '<button data-tab="'+x.k+'" class="'+(state.tab===x.k?'active':'')+'">'+x.svg+'<span>'+esc(t('tab_'+x.k))+'</span></button>';
+  }).join('');
+}
+function setupHtml(){
+  var el=$('schema-sql'),sql=el?el.textContent:'';
+  return '<div class="setup"><h3>إعداد المنصة (مرة وحدة)</h3><ol>'+
+   '<li>فـ <b>supabase.com</b> عمر مشروع جديد.</li>'+
+   '<li>SQL Editor ← لصق الكود اللي تحت ← Run.</li>'+
+   '<li>Project Settings ← API ← انسخ <code>Project URL</code> و<code>anon public key</code>.</li>'+
+   '<li>فأعلى هاد الملف بدل <code>SUPABASE_URL</code> و<code>SUPABASE_ANON_KEY</code> و<code>SUPPORT_CONTACT</code> وعاود انشر.</li>'+
+   '<li>Authentication ← URL Configuration: زيد رابط موقعك.</li></ol>'+
+   '<div class="row between"><b>SQL</b><button class="btn small" data-copy="1">نسخ</button></div>'+
+   '<textarea id="sqlbox" readonly dir="ltr" rows="12" style="font-size:12px">'+esc(sql)+'</textarea></div>';
+}
+function render(){
+  applyLang();renderNav();
+  var app=$('app');
+  if(!configured){
+    app.innerHTML=setupHtml();
+    return;
+  }
+  if(state.tab==='home')app.innerHTML=viewHome();
+  else if(state.tab==='rooms')app.innerHTML=state.openRoom?viewRoom():viewRooms();
+  else if(state.tab==='post')app.innerHTML=viewPost();
+  else app.innerHTML=viewProfile();
+  if(state.openRoom&&state.tab==='rooms')paintRoom();
+  if(state.sheet&&$('overlay').classList.contains('show'))openSheet();
+}
+
+/* ================= views ================= */
+function disc(){return '<div class="disclaimer">'+esc(t('disclaimer'))+'</div>';}
+function optionsFrom(keys,names,sel,allLabel){
+  return '<option value="">'+esc(allLabel)+'</option>'+keys.map(function(k){return '<option value="'+k+'"'+(k===sel?' selected':'')+'>'+esc(names(k))+'</option>';}).join('');
+}
+var AMOUNTS=[
+  {k:'',t:'amt_all'},
+  {k:'a',t:'amt_a',f:function(n){return n<10000;}},
+  {k:'b',t:'amt_b',f:function(n){return n>=10000&&n<=100000;}},
+  {k:'c',t:'amt_c',f:function(n){return n>100000;}}
+];
+function filtered(){
+  var q=state.q.trim().toLowerCase();
+  var af=AMOUNTS.filter(function(a){return a.k===state.fa;})[0];
+  return state.projects.filter(function(p){
+    if(state.fs&&p.sector!==state.fs)return false;
+    if(state.fc&&p.country!==state.fc)return false;
+    if(af&&af.f&&!af.f(Number(p.amount)))return false;
+    if(q&&(p.title+' '+p.description+' '+sectorName(p.sector)).toLowerCase().indexOf(q)<0)return false;
+    return true;
+  });
+}
+function isMine(p){return state.user&&p.owner_id===state.user.id;}
+function cardHtml(p){
+  var s=state.stats[p.id]||{interested:0,comments:0};
+  var tags='<span class="tag">'+esc(sectorName(p.sector))+'</span><span class="tag gray">'+esc(countryName(p.country))+'</span>';
+  if(isMine(p))tags+='<span class="tag warn">'+esc(t('mine'))+'</span>';
+  if(p.status==='pending')tags+='<span class="tag warn">'+esc(t('pendingTag'))+'</span>';
+  return '<div class="card click" data-open="'+esc(p.id)+'">'+
+   '<div class="row between"><div class="row">'+tags+'</div>'+(isVerified(p.owner_id)?'<span class="badge">'+esc(t('verified'))+'</span>':'')+'</div>'+
+   '<h3>'+esc(p.title)+'</h3><p class="desc">'+esc(p.description)+'</p>'+
+   '<div class="row between" style="margin-top:10px"><span class="meta">'+esc(t('askedAmount'))+': <span class="amount">'+money(p.amount)+'</span></span>'+
+   '<span class="meta">👍 '+s.interested+' · 💬 '+s.comments+'</span></div></div>';
+}
+function viewHome(){
+  var list=filtered();
+  var amt=AMOUNTS.map(function(a){return '<option value="'+a.k+'"'+(a.k===state.fa?' selected':'')+'>'+esc(t(a.t))+'</option>';}).join('');
+  var h=disc()+
+   '<input class="search" id="q" type="text" placeholder="'+esc(t('searchPh'))+'" value="'+esc(state.q)+'">'+
+   '<div class="filters"><select id="fs">'+optionsFrom(SECTOR_KEYS,sectorName,state.fs,t('allSectors'))+'</select>'+
+   '<select id="fc">'+optionsFrom(COUNTRY_KEYS,countryName,state.fc,t('allCountries'))+'</select>'+
+   '<select id="fa">'+amt+'</select></div>';
+  if(state.loading)return h+'<div class="empty">'+esc(t('loading'))+'</div>';
+  h+='<div class="count">'+esc(t('nProjects',list.length))+'</div>';
+  if(!list.length)h+='<div class="empty">'+esc(t('noResults'))+'</div>';
+  return h+list.map(cardHtml).join('');
+}
+function viewRooms(){
+  return disc()+'<div class="count">'+esc(t('roomsHint'))+'</div>'+
+  SECTOR_KEYS.map(function(k){
+    return '<div class="card click room" data-room="'+k+'"><div class="ic">'+ROOM_ICONS[k]+'</div><div style="flex:1"><b>'+esc(t('roomName',sectorName(k)))+'</b></div><span class="meta">›</span></div>';
+  }).join('');
+}
+function viewRoom(){
+  var k=state.openRoom;
+  return '<div class="row between" style="margin-bottom:10px"><b style="font-size:18px">'+ROOM_ICONS[k]+' '+esc(t('roomName',sectorName(k)))+'</b><button class="btn ghost small" data-back="1">'+esc(t('back'))+'</button></div>'+
+   '<div class="disclaimer">'+esc(t('roomNote'))+'</div><div id="msgs"></div>'+
+   '<div class="chatbox"><input id="chatin" type="text" placeholder="'+esc(t('msgPh'))+'" maxlength="500"><button class="btn" id="chatsend">'+esc(t('send'))+'</button></div>';
+}
+function paintRoom(){
+  var box=$('msgs');if(!box)return;
+  var rows=state.roomRows;
+  box.innerHTML=rows.length?rows.map(function(m){
+    var me=state.user&&m.user_id===state.user.id;
+    return '<div class="msg'+(me?' me':'')+'"><div class="who">'+esc(nameOf(m.user_id))+'</div>'+esc(m.body)+'</div>';
+  }).join(''):'<div class="empty">'+esc(t('firstStart'))+'</div>';
+}
+async function loadRoom(scroll){
+  var k=state.openRoom;if(!k)return;
+  var r=await sb.from('room_messages').select('id,user_id,body,created_at').eq('sector',k).order('created_at',{ascending:false}).limit(100);
+  if(r.error||state.openRoom!==k)return;
+  var rows=r.data.slice().reverse();
+  await ensureNames(rows.map(function(m){return m.user_id;}));
+  var changed=JSON.stringify(rows.map(function(x){return x.id;}))!==JSON.stringify(state.roomRows.map(function(x){return x.id;}));
+  state.roomRows=rows;
+  if(changed||scroll){paintRoom();if(scroll)window.scrollTo(0,document.body.scrollHeight);}
+}
+function viewPost(){
+  if(!state.user)return disc()+'<div class="card"><p>'+esc(t('authNeeded'))+'</p><button class="btn block" data-auth="login" style="margin-top:10px">'+esc(t('login'))+'</button></div>';
+  var so=SECTOR_KEYS.map(function(k){return '<option value="'+k+'">'+esc(sectorName(k))+'</option>';}).join('');
+  var co=COUNTRY_KEYS.map(function(k){return '<option value="'+k+'">'+esc(countryName(k))+'</option>';}).join('');
+  return disc()+'<div class="card"><h3 style="margin-top:0">'+esc(t('postTitle'))+'</h3>'+
+   '<label>'+esc(t('fTitle'))+'</label><input type="text" id="p_title" maxlength="80" placeholder="'+esc(t('phTitle'))+'">'+
+   '<label>'+esc(t('fSector'))+'</label><select class="f" id="p_sector">'+so+'</select>'+
+   '<label>'+esc(t('fCountry'))+'</label><select class="f" id="p_country">'+co+'</select>'+
+   '<label>'+esc(t('fAmount'))+'</label><input type="number" id="p_amount" min="1" inputmode="numeric" placeholder="'+esc(t('phAmount'))+'">'+
+   '<label>'+esc(t('fDesc'))+'</label><textarea id="p_desc" maxlength="800" placeholder="'+esc(t('phDesc'))+'"></textarea>'+
+   '<label>'+esc(t('fContact'))+'</label><input type="text" id="p_contact" maxlength="120" placeholder="'+esc(t('phContact'))+'">'+
+   '<div class="err" id="p_err"></div>'+
+   '<button class="btn block" id="p_submit">'+esc(t('submit'))+'</button></div>';
+}
+function stLabel(s){return t(s==='accepted'?'stAccepted':s==='declined'?'stDeclined':'stPending');}
+function requestsHtml(){
+  var uid=state.user.id;
+  var inc=state.requests.filter(function(r){return r.requester_id!==uid;});
+  var out=state.requests.filter(function(r){return r.requester_id===uid;});
+  function title(r){var p=state.pmap[r.project_id];return p?p.title:'—';}
+  var h='<div class="count">'+esc(t('incoming'))+'</div>';
+  if(!inc.length)h+='<div class="empty">'+esc(t('noRequests'))+'</div>';
+  h+=inc.map(function(r){
+    var x='<div class="card"><div class="row between"><b>'+esc(title(r))+'</b><span class="tag '+(r.status==='pending'?'warn':'')+'">'+esc(stLabel(r.status))+'</span></div>'+
+      '<div class="meta" style="margin-top:6px">'+esc(t('fromWho'))+': <b>'+esc(nameOf(r.requester_id))+'</b></div><p style="margin-top:6px;overflow-wrap:anywhere">'+esc(r.message)+'</p>';
+    if(r.status==='pending')x+='<div class="row" style="margin-top:8px"><button class="btn small" data-respond="'+esc(r.id)+'" data-accept="1">'+esc(t('accept'))+'</button><button class="btn danger small" data-respond="'+esc(r.id)+'" data-accept="0">'+esc(t('decline'))+'</button></div>';
+    if(r.status==='accepted')x+='<div class="contact">'+esc(t('theirContact'))+' <b>'+esc(r.requester_contact)+'</b></div>';
+    return x+'</div>';
+  }).join('');
+  h+='<div class="count">'+esc(t('outgoing'))+'</div>';
+  if(!out.length)h+='<div class="empty">'+esc(t('noRequests'))+'</div>';
+  h+=out.map(function(r){
+    var x='<div class="card"><div class="row between"><b>'+esc(title(r))+'</b><span class="tag '+(r.status==='pending'?'warn':'')+'">'+esc(stLabel(r.status))+'</span></div>';
+    if(r.status==='accepted')x+='<div class="contact">'+esc(t('cAccepted'))+'<br><b>'+esc(state.ownerContacts[r.project_id]||'—')+'</b></div>';
+    if(r.status==='declined')x+='<div class="meta" style="margin-top:6px">'+esc(t('cDeclined'))+'</div>';
+    return x+'</div>';
+  }).join('');
+  return h;
+}
+function viewProfile(){
+  if(!state.user)return '<div class="card"><p>'+esc(t('authNeeded'))+'</p><button class="btn block" data-auth="login" style="margin-top:10px">'+esc(t('login'))+'</button></div>';
+  var p=state.me||{name:'',role:'investor',country:'',interests:'',credits:0};
+  var mine=state.projects.filter(isMine);
+  return '<div class="card"><h3 style="margin-top:0">'+esc(t('profTitle'))+'</h3>'+
+   '<div class="meta">'+esc(state.user.email||'')+'</div>'+
+   '<label>'+esc(t('pName'))+'</label><input type="text" id="f_name" maxlength="40" value="'+esc(p.name)+'">'+
+   '<label>'+esc(t('iAm'))+'</label><select class="f" id="f_role"><option value="investor"'+(p.role==='investor'?' selected':'')+'>'+esc(t('investor'))+'</option><option value="owner"'+(p.role==='owner'?' selected':'')+'>'+esc(t('projOwner'))+'</option></select>'+
+   '<label>'+esc(t('fCountry'))+'</label><select class="f" id="f_country">'+optionsFrom(COUNTRY_KEYS,countryName,p.country,t('chooseCountry'))+'</select>'+
+   '<label>'+esc(t('interests'))+'</label><input type="text" id="f_int" maxlength="100" value="'+esc(p.interests||'')+'" placeholder="'+esc(t('intPh'))+'">'+
+   '<button class="btn block" id="f_save" style="margin-top:14px">'+esc(t('save'))+'</button>'+
+   '<p class="meta" style="margin-top:10px">'+esc(t('verifiedNote'))+'</p></div>'+
+   '<div class="card"><div class="row between"><b>'+esc(t('credits'))+'</b><span class="tag">'+esc(t('nCredits',p.credits))+'</span></div>'+
+   '<p class="meta" style="margin-top:8px">'+esc(t('topupReal'))+'<b>'+esc(SUPPORT_CONTACT)+'</b></p></div>'+
+   requestsHtml()+
+   '<div class="count">'+esc(t('myProjects',mine.length))+'</div>'+
+   (mine.length?mine.map(cardHtml).join(''):'<div class="empty">'+esc(t('noneYet'))+'</div>');
+}
+
+/* ================= sheets ================= */
+function myRequestFor(pid){
+  if(!state.user)return null;
+  return state.requests.filter(function(r){return r.project_id===pid&&r.requester_id===state.user.id;})[0]||null;
+}
+function contactSection(p){
+  if(isMine(p))return '<div class="meta" style="margin:8px 0">'+esc(p.status==='pending'?t('pendingNote'):t('cOwn'))+'</div>';
+  var r=myRequestFor(p.id);
+  if(r&&r.status==='accepted')return '<div class="contact">'+esc(t('cAccepted'))+'<br><b>'+esc(state.ownerContacts[p.id]||'—')+'</b><br><span class="meta">'+esc(t('cShared'))+'</span></div>';
+  if(r&&r.status==='declined')return '<div class="pending">'+esc(t('cDeclined'))+'</div>';
+  if(r)return '<div class="pending">'+esc(t('cPending'))+'</div>';
+  if(!state.showForm)return '<button class="btn block" data-contact="'+esc(p.id)+'" style="margin-top:8px">'+esc(t('cBtn'))+'</button>';
+  return '<div class="reqform"><b>'+esc(t('cFormTitle'))+'</b><div class="meta">'+esc(t('cCost',state.me?state.me.credits:0))+'</div>'+
+    '<label>'+esc(t('cMsg'))+'</label><textarea id="r_msg" maxlength="400" placeholder="'+esc(t('cMsgPh'))+'"></textarea>'+
+    '<label>'+esc(t('cMine'))+'</label><input type="text" id="r_contact" maxlength="120" placeholder="'+esc(t('cMinePh'))+'">'+
+    '<div class="err" id="r_err">'+esc(state.reqErr)+'</div>'+
+    '<button class="btn block" data-sendreq="'+esc(p.id)+'">'+esc(t('cSend'))+'</button></div>';
+}
+function commentsHtml(pid){
+  var cm=state.comments[pid];
+  if(!cm)return '<div class="meta" style="padding:8px 0">'+esc(t('loading'))+'</div>';
+  return cm.length?cm.map(function(c){return '<div class="comment"><div class="who">'+esc(nameOf(c.user_id))+'</div>'+esc(c.body)+'</div>';}).join(''):'<div class="meta" style="padding:8px 0">'+esc(t('noComments'))+'</div>';
+}
+function openSheet(){
+  var s=state.sheet;if(!s)return;
+  if(s.kind==='auth'){
+    var signup=s.mode==='signup';
+    $('sheet').innerHTML='<button class="close" data-close="1" aria-label="close">✕</button>'+
+     '<h3 style="margin-bottom:6px">'+esc(t(signup?'signupTitle':'loginTitle'))+'</h3>'+
+     (signup?'<label>'+esc(t('pName'))+'</label><input type="text" id="a_name" maxlength="40" autocomplete="name">':'')+
+     '<label>'+esc(t('email'))+'</label><input type="email" id="a_email" autocomplete="email">'+
+     '<label>'+esc(t('password'))+'</label><input type="password" id="a_pw" autocomplete="'+(signup?'new-password':'current-password')+'">'+
+     '<div class="err" id="a_err">'+esc(state.authErr)+'</div>'+
+     '<button class="btn block" data-doauth="'+(signup?'signup':'login')+'">'+esc(t(signup?'signup':'login'))+'</button>'+
+     '<p style="margin-top:12px;text-align:center"><button class="meta" style="text-decoration:underline" data-auth="'+(signup?'login':'signup')+'">'+esc(t(signup?'haveAccount':'noAccount'))+'</button></p>';
+    $('overlay').classList.add('show');return;
+  }
+  var p=state.pmap[s.id];if(!p){closeSheet();return;}
+  var st=state.stats[p.id]||{interested:0,comments:0};
+  var liked=!!state.myInterests[p.id];
+  var cm=state.comments[p.id];
+  $('sheet').innerHTML='<button class="close" data-close="1" aria-label="close">✕</button>'+
+   '<div class="row"><span class="tag">'+esc(sectorName(p.sector))+'</span><span class="tag gray">'+esc(countryName(p.country))+'</span>'+(isVerified(p.owner_id)?'<span class="badge">'+esc(t('verified'))+'</span>':'')+(p.status==='pending'?'<span class="tag warn">'+esc(t('pendingTag'))+'</span>':'')+'</div>'+
+   '<h3 style="font-size:20px;margin:8px 0">'+esc(p.title)+'</h3>'+
+   '<p style="overflow-wrap:anywhere">'+esc(p.description)+'</p>'+
+   '<div class="kv"><div>'+esc(t('askedAmount'))+'<b>'+money(p.amount)+'</b></div><div>'+esc(t('owner'))+'<b>'+esc(nameOf(p.owner_id))+'</b></div></div>'+
+   (p.status==='approved'?'<button class="btn small '+(liked?'on':'ghost')+'" data-like="'+esc(p.id)+'">👍 '+esc(t('interested'))+' ('+(st.interested)+')</button>':'')+
+   (p.status==='approved'||isMine(p)?contactSection(p):'')+
+   '<div class="disclaimer" style="margin-top:12px">'+esc(t('offPlatform'))+'</div>'+
+   '<b>'+esc(t('comments'))+' ('+(cm?cm.length:st.comments)+')</b><div id="clist">'+commentsHtml(p.id)+'</div>'+
+   (p.status==='approved'?'<div class="chatbox"><input id="cin" type="text" maxlength="300" placeholder="'+esc(t('commentPh'))+'"><button class="btn" data-comment="'+esc(p.id)+'">'+esc(t('publish'))+'</button></div>':'');
+  $('overlay').classList.add('show');
+}
+async function openProject(id){
+  state.sheet={kind:'project',id:id};
+  openSheet();
+  var r=await sb.from('comments').select('id,user_id,body,created_at').eq('project_id',id).order('created_at',{ascending:true}).limit(100);
+  if(r.error)return;
+  await ensureNames(r.data.map(function(c){return c.user_id;}));
+  state.comments[id]=r.data;
+  if(state.sheet&&state.sheet.kind==='project'&&state.sheet.id===id)openSheet();
+}
+function closeSheet(){$('overlay').classList.remove('show');state.sheet=null;state.showForm=false;state.reqErr='';state.authErr='';}
+function openAuth(mode){state.authErr='';state.sheet={kind:'auth',mode:mode||'login'};openSheet();}
+function needAuth(){if(state.user)return false;openAuth('login');return true;}
+
+/* ================= actions ================= */
+async function doAuth(mode){
+  var email=($('a_email').value||'').trim(),pw=$('a_pw').value||'';
+  if(!email||!pw){state.authErr=t('authFill');openSheet();return;}
+  var res;
+  if(mode==='signup'){
+    var nm=($('a_name').value||'').trim();
+    res=await sb.auth.signUp({email:email,password:pw,options:{data:{name:nm}}});
+    if(res.error){state.authErr=res.error.message;openSheet();return;}
+    if(!res.data.session){state.authErr='';closeSheet();toast(t('confirmEmail'));return;}
+  }else{
+    res=await sb.auth.signInWithPassword({email:email,password:pw});
+    if(res.error){state.authErr=res.error.message;openSheet();return;}
+  }
+  closeSheet();
+}
+async function submitProject(){
+  if(needAuth())return;
+  var title=$('p_title').value.trim(),desc=$('p_desc').value.trim(),amount=parseFloat($('p_amount').value),contact=$('p_contact').value.trim(),err=$('p_err');
+  if(title.length<4){err.textContent=t('e1');return;}
+  if(!(amount>0)){err.textContent=t('e2');return;}
+  if(desc.length<20){err.textContent=t('e3');return;}
+  if(contact.length<3){err.textContent=t('e4');return;}
+  var btn=$('p_submit');btn.disabled=true;
+  var r=await sb.from('projects').insert({owner_id:state.user.id,title:title,sector:$('p_sector').value,country:$('p_country').value,amount:amount,description:desc,lang:state.lang}).select('id').single();
+  if(r.error){btn.disabled=false;err.textContent=errMsg(r.error);return;}
+  var c=await sb.from('project_contacts').insert({project_id:r.data.id,contact:contact});
+  if(c.error){btn.disabled=false;err.textContent=errMsg(c.error);return;}
+  toast(t('posted'));
+  await loadProjects();
+  go('profile');
+}
+async function saveProfile(){
+  if(needAuth())return;
+  var r=await sb.from('profiles').update({name:$('f_name').value.trim(),role:$('f_role').value,country:$('f_country').value||null,interests:$('f_int').value.trim()}).eq('id',state.user.id);
+  if(r.error){toast(errMsg(r.error));return;}
+  await loadMe();
+  state.names[state.user.id]={id:state.user.id,name:state.me.name,verified:state.me.verified};
+  toast(t('saved'));render();
+}
+async function toggleLike(pid){
+  if(needAuth())return;
+  var has=!!state.myInterests[pid],r;
+  if(has)r=await sb.from('interests').delete().eq('project_id',pid).eq('user_id',state.user.id);
+  else r=await sb.from('interests').insert({project_id:pid,user_id:state.user.id});
+  if(r.error){toast(errMsg(r.error));return;}
+  state.myInterests[pid]=!has;
+  var s=state.stats[pid]||{interested:0,comments:0};
+  s.interested=Math.max(0,s.interested+(has?-1:1));state.stats[pid]=s;
+  render();
+}
+async function addComment(pid){
+  if(needAuth())return;
+  var inp=$('cin');var v=inp.value.trim();if(!v)return;
+  var r=await sb.from('comments').insert({project_id:pid,user_id:state.user.id,body:v}).select('id,user_id,body,created_at').single();
+  if(r.error){toast(errMsg(r.error));return;}
+  await ensureNames([state.user.id]);
+  var arr=state.comments[pid]||[];arr.push(r.data);state.comments[pid]=arr;
+  var s=state.stats[pid]||{interested:0,comments:0};s.comments+=1;state.stats[pid]=s;
+  render();
+}
+async function sendRequest(pid){
+  if(needAuth())return;
+  var m=$('r_msg').value.trim(),c=$('r_contact').value.trim();
+  if(m.length<10){state.reqErr=t('cErrMsg');openSheet();return;}
+  if(c.length<3){state.reqErr=t('cErrContact');openSheet();return;}
+  var r=await sb.rpc('send_contact_request',{p_project:pid,p_message:m,p_contact:c});
+  if(r.error){state.reqErr=errMsg(r.error);openSheet();return;}
+  state.showForm=false;state.reqErr='';
+  await loadMe();await loadRequests();
+  toast(t('cSent'));render();
+}
+async function respond(id,accept){
+  var r=await sb.rpc('respond_contact_request',{p_request:id,p_accept:accept});
+  if(r.error){toast(errMsg(r.error));return;}
+  await loadRequests();render();
+}
+async function sendChat(){
+  if(needAuth())return;
+  var inp=$('chatin');if(!inp)return;var v=inp.value.trim();if(!v)return;
+  inp.disabled=true;
+  var r=await sb.from('room_messages').insert({sector:state.openRoom,user_id:state.user.id,body:v});
+  inp.disabled=false;
+  if(r.error){toast(errMsg(r.error));return;}
+  inp.value='';
+  await ensureNames([state.user.id]);
+  await loadRoom(true);
+  var n=$('chatin');if(n)n.focus();
+}
+
+/* ================= events ================= */
+document.addEventListener('click',function(e){
+  var tg=e.target;
+  var el=tg.closest?tg.closest('[data-lang],[data-tab],[data-open],[data-room],[data-back],[data-close],[data-like],[data-contact],[data-sendreq],[data-respond],[data-comment],[data-auth],[data-doauth],[data-logout],[data-copy],#p_submit,#f_save,#chatsend'):null;
+  if(!el){if(tg===$('overlay'))closeSheet();return;}
+  var d=el.dataset;
+  if(d.lang){state.lang=d.lang;lsSet('ic_lang',state.lang);render();return;}
+  if(d.tab){closeSheet();go(d.tab);return;}
+  if(d.copy){var ta=$('sqlbox');if(!ta)return;var ok=function(){toast('تم النسخ ✓');};var fb=function(){ta.focus();ta.select();try{document.execCommand('copy');ok();}catch(x){}};try{navigator.clipboard.writeText(ta.value).then(ok,fb);}catch(x){fb();}return;}
+  if(!configured)return;
+  if(d.auth){openAuth(d.auth);return;}
+  if(d.doauth){doAuth(d.doauth);return;}
+  if(d.logout){sb.auth.signOut();return;}
+  if(d.open){state.showForm=false;state.reqErr='';openProject(d.open);return;}
+  if(d.room){state.openRoom=d.room;state.roomRows=[];render();loadRoom(true);stopRoom();state.roomTimer=setInterval(function(){loadRoom(false);},8000);return;}
+  if(d.back){stopRoom();state.openRoom=null;render();return;}
+  if(d.close){closeSheet();return;}
+  if(d.like){toggleLike(d.like);return;}
+  if(d.contact){if(needAuth())return;state.showForm=true;state.reqErr='';openSheet();return;}
+  if(d.sendreq){sendRequest(d.sendreq);return;}
+  if(d.respond){respond(d.respond,d.accept==='1');return;}
+  if(d.comment){addComment(d.comment);return;}
+  if(el.id==='p_submit'){submitProject();return;}
+  if(el.id==='f_save'){saveProfile();return;}
+  if(el.id==='chatsend'){sendChat();return;}
+});
+document.addEventListener('input',function(e){if(e.target.id==='q'){state.q=e.target.value;refreshList(true);}});
+document.addEventListener('change',function(e){
+  var id=e.target.id;
+  if(id==='fs'){state.fs=e.target.value;refreshList();}
+  else if(id==='fc'){state.fc=e.target.value;refreshList();}
+  else if(id==='fa'){state.fa=e.target.value;refreshList();}
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&e.target.id==='chatin'){e.preventDefault();sendChat();}
+  if(e.key==='Enter'&&e.target.id==='cin'){e.preventDefault();var b=document.querySelector('[data-comment]');if(b)b.click();}
+  if(e.key==='Escape')closeSheet();
+});
+function refreshList(keepFocus){
+  var pos=window.scrollY,q=$('q'),caret=q?q.selectionStart:0;
+  render();
+  if(keepFocus){var n=$('q');if(n){n.focus();try{n.setSelectionRange(caret,caret);}catch(e){}}}
+  window.scrollTo(0,pos);
+}
+
+/* ================= init ================= */
+var h=(location.hash||'').replace('#','');
+if(TABS.some(function(x){return x.k===h;}))state.tab=h;
+render();
+if(configured){
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  sb.auth.onAuthStateChange(function(ev,session){
+    state.user=session?session.user:null;
+    setTimeout(function(){refreshAll();},0);
+  });
+}
+})();
+</script>
+</body>
+</html>
