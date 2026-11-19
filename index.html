@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; frame-ancestors 'none'; base-uri 'self';">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <title id="page-title">NexusInvest | شبكة المستثمرين الموثقين</title>
+    <title>NexusInvest | شبكة المستثمرين الموثقين</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -14,9 +13,9 @@
     <!-- شريط التنقل العلوي -->
     <nav class="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="text-2xl font-bold text-emerald-400">Nexus<span class="text-white">Invest</span></div>
+            <div class="text-2xl font-bold text-emerald-400 cursor-pointer" id="logo-home">Nexus<span class="text-white">Invest</span></div>
             
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
                 <select id="lang-switcher" class="bg-slate-950 border border-slate-700 text-slate-300 text-xs rounded-lg px-2 py-1.5 outline-none cursor-pointer">
                     <option value="ar">العربية</option>
                     <option value="en">English</option>
@@ -24,16 +23,21 @@
                 </select>
 
                 <div id="auth-buttons">
-                    <button id="btn-open-modal" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 text-sm rounded-lg transition" data-i18n="loginBtn">دخول المستثمرين</button>
+                    <button type="button" id="btn-open-modal" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 text-sm rounded-lg transition cursor-pointer" data-i18n="loginBtn">دخول المستثمرين</button>
                 </div>
                 <div id="user-menu" class="hidden flex items-center gap-3">
-                    <button id="btn-open-messages" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 px-3 py-1.5 rounded-lg border border-slate-700 transition" data-i18n="messagesBtn">الرسائل الخاصة</button>
+                    <button type="button" id="btn-open-messages" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 px-3 py-1.5 rounded-lg border border-slate-700 transition cursor-pointer" data-i18n="messagesBtn">الرسائل الخاصة</button>
                     <span id="user-badge" class="text-xs px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 border border-emerald-500/30"></span>
-                    <button id="btn-logout" class="text-xs bg-slate-800 hover:bg-red-500/20 hover:text-red-400 px-3 py-1.5 rounded-lg border border-slate-700 transition" data-i18n="logoutBtn">خروج</button>
+                    <button type="button" id="btn-logout" class="text-xs bg-slate-800 hover:bg-red-500/20 hover:text-red-400 px-3 py-1.5 rounded-lg border border-slate-700 transition cursor-pointer" data-i18n="logoutBtn">خروج</button>
                 </div>
             </div>
         </div>
     </nav>
+
+    <!-- شريط تنبيه وضع المعاينة (يختفي أوتوماتيكياً ملي تربط Supabase) -->
+    <div id="demo-banner" class="hidden bg-amber-500/10 border-b border-amber-500/30 text-amber-300 text-xs text-center py-2 px-4">
+        ⚡ وضع المعاينة التجريبي مفعل (لأن مفاتيح Supabase مازال ما تحطوش). تقدر تجرب تسجيل الدخول ونشر الصفقات والرسائل دابا!
+    </div>
 
     <!-- المحتوى الأساسي -->
     <main class="flex-grow">
@@ -43,7 +47,7 @@
             <h1 class="text-4xl md:text-6xl font-extrabold mt-6 leading-tight" data-i18n="heroTitle">شبكة نخبة المستثمرين لتبادل الخبرات والصفقات</h1>
             <p class="text-slate-400 text-lg mt-6 max-w-2xl mx-auto" data-i18n="heroDesc">كل حساب يخضع للتحقق اليدوي الصارم قبل الوصول إلى غرف الصفقات أو بيانات الأعضاء الحصرية.</p>
             <div class="mt-10">
-                <button id="btn-hero-join" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-8 py-4 rounded-xl text-lg transition" data-i18n="joinBtn">تقديم طلب انضمام</button>
+                <button type="button" id="btn-hero-join" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-8 py-4 rounded-xl text-lg transition cursor-pointer" data-i18n="joinBtn">تقديم طلب انضمام</button>
             </div>
         </section>
 
@@ -79,9 +83,9 @@
                         </div>
                         <div>
                             <label class="block text-sm text-slate-400 mb-1" data-i18n="descLabel">التفاصيل المالية والضمانات</label>
-                            <textarea id="deal-desc" required minlength="20" maxlength="1000" rows="4" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-emerald-500 outline-none"></textarea>
+                            <textarea id="deal-desc" required minlength="10" maxlength="1000" rows="4" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-emerald-500 outline-none"></textarea>
                         </div>
-                        <button type="submit" id="submit-deal-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-lg transition" data-i18n="publishBtn">نشر آمن</button>
+                        <button type="submit" id="submit-deal-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-lg transition cursor-pointer" data-i18n="publishBtn">نشر آمن</button>
                     </form>
                 </div>
                 <!-- عرض الصفقات -->
@@ -96,422 +100,16 @@
     <!-- نافذة الرسائل الخاصة -->
     <div id="messages-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div class="bg-slate-900 border border-slate-800 max-w-2xl w-full p-6 rounded-2xl relative flex flex-col h-[80vh]">
-            <button id="btn-close-messages" class="absolute top-4 left-4 text-slate-400 hover:text-white text-xl">&times;</button>
+            <button type="button" id="btn-close-messages" class="absolute top-4 left-4 text-slate-400 hover:text-white text-2xl cursor-pointer">&times;</button>
             <h3 class="text-xl font-bold mb-4 text-emerald-400" data-i18n="msgModalTitle">صندوق الرسائل الخاصة</h3>
             
-            <div id="messages-list" class="flex-grow overflow-y-auto space-y-3 pr-2 border border-slate-800 p-4 rounded-xl bg-slate-950 mb-4">
-                <p class="text-slate-500 text-sm">جاري تحميل الرسائل...</p>
-            </div>
+            <div id="messages-list" class="flex-grow overflow-y-auto space-y-3 p-4 border border-slate-800 rounded-xl bg-slate-950 mb-4"></div>
 
             <form id="reply-form" class="hidden flex gap-2">
-                <input type="text" id="reply-content" required placeholder="اكتب ردك هنا..." class="flex-grow bg-slate-950 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-emerald-500 text-sm">
-                <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 rounded-lg transition text-sm" data-i18n="sendBtn">إرسال</button>
+                <input type="text" id="reply-content" required placeholder="اكتب رسالتك الخاصة هنا..." class="flex-grow bg-slate-950 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-emerald-500 text-sm">
+                <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 rounded-lg transition text-sm cursor-pointer" data-i18n="sendBtn">إرسال</button>
             </form>
         </div>
     </div>
 
-    <!-- نافذة تسجيل الدخول/التسجيل -->
-    <div id="auth-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 max-w-md w-full p-6 rounded-2xl relative">
-            <button id="btn-close-modal" class="absolute top-4 left-4 text-slate-400 hover:text-white text-xl">&times;</button>
-            <h3 class="text-2xl font-bold mb-2" data-i18n="modalTitle">بوابة الدخول الآمن</h3>
-            <p class="text-sm text-slate-400 mb-6" data-i18n="modalDesc">استخدم بريدك المهني وكلمة مرور قوية.</p>
-            <form id="auth-form" class="space-y-4">
-                <input type="text" id="full-name" placeholder="الاسم الكامل / اسم الصندوق (للتسجيل الجديد)" maxlength="60" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-emerald-500">
-                <input type="email" id="email" required placeholder="البريد الإلكتروني المهني" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-emerald-500">
-                <input type="password" id="password" required minlength="10" placeholder="كلمة المرور (10 أحرف + أرقام ورموز)" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-emerald-500">
-                <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-lg transition" data-i18n="signinBtn">دخول</button>
-                    <button type="button" id="btn-signup" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-lg transition" data-i18n="signupBtn">طلب عضوية</button>
-                </div>
-            </form>
-            <p id="auth-message" class="text-sm mt-4 text-center"></p>
-        </div>
-    </div>
-
-    <!-- المنطق البرمجي ونظام المراسلة -->
-    <script>
-        const translations = {
-            ar: {
-                dir: "rtl",
-                loginBtn: "دخول المستثمرين",
-                logoutBtn: "خروج",
-                messagesBtn: "الرسائل الخاصة",
-                badgeText: "بيئة مشفرة ومغلقة للمستثمرين الموثقين",
-                heroTitle: "شبكة نخبة المستثمرين لتبادل الخبرات والصفقات",
-                heroDesc: "كل حساب يخضع للتحقق اليدوي الصارم قبل الوصول إلى غرف الصفقات أو بيانات الأعضاء الحصرية.",
-                joinBtn: "تقديم طلب انضمام",
-                pendingTitle: "حسابك قيد المراجعة الأمنية",
-                pendingDesc: "حفاظاً على سرية الصفقات، يقوم فريقنا بمراجعة هويتك الاستثمارية. سيتم فتح غرف الصفقات فور اكتمال التدقيق.",
-                dealFormTitle: "طرح فرصة استثمارية",
-                dealTitleLabel: "عنوان الفرصة",
-                sectorLabel: "القطاع",
-                descLabel: "التفاصيل المالية والضمانات",
-                publishBtn: "نشر آمن",
-                roomTitle: "غرفة الصفقات الموثقة",
-                modalTitle: "بوابة الدخول الآمن",
-                modalDesc: "استخدم بريدك المهني وكلمة مرور قوية.",
-                signinBtn: "دخول",
-                signupBtn: "طلب عضوية",
-                msgModalTitle: "صندوق الرسائل الخاصة",
-                sendBtn: "إرسال",
-                privateMsgBtn: "مراسلة المستثمر"
-            },
-            en: {
-                dir: "ltr",
-                loginBtn: "Investor Login",
-                logoutBtn: "Logout",
-                messagesBtn: "Messages",
-                badgeText: "Encrypted & Closed Environment for Verified Investors",
-                heroTitle: "Elite Investor Network for Cross-Border Deals & Expertise",
-                heroDesc: "Every account undergoes rigorous manual verification before accessing deal rooms or member data.",
-                joinBtn: "Request Membership",
-                pendingTitle: "Your Account is Under Security Review",
-                pendingDesc: "To ensure confidentiality, our team is verifying your investor identity. Deal rooms will unlock upon completion.",
-                dealFormTitle: "Post Investment Opportunity",
-                dealTitleLabel: "Deal Title",
-                sectorLabel: "Sector",
-                descLabel: "Financial Details & Guarantees",
-                publishBtn: "Secure Publish",
-                roomTitle: "Verified Deal Rooms",
-                modalTitle: "Secure Access Portal",
-                modalDesc: "Use your professional email and strong password.",
-                signinBtn: "Sign In",
-                signupBtn: "Request Membership",
-                msgModalTitle: "Private Messages Box",
-                sendBtn: "Send",
-                privateMsgBtn: "Message Investor"
-            },
-            fr: {
-                dir: "ltr",
-                loginBtn: "Connexion",
-                logoutBtn: "Déconnexion",
-                messagesBtn: "Messages",
-                badgeText: "Environnement crypté et fermé pour investisseurs vérifiés",
-                heroTitle: "Réseau d'Investisseurs d'Élite pour Échanges et Transactions",
-                heroDesc: "Chaque compte fait l'objet d'une vérification manuelle rigoureuse avant d'accéder aux salles.",
-                joinBtn: "Demander l'Adhésion",
-                pendingTitle: "Votre compte est en cours d'examen",
-                pendingDesc: "Pour garantir la confidentialité, notre équipe vérifie votre identité. Les salles s'ouvriront après validation.",
-                dealFormTitle: "Publier une Opportunité",
-                dealTitleLabel: "Titre de l'Opportunité",
-                sectorLabel: "Secteur",
-                descLabel: "Détails Financiers et Garanties",
-                publishBtn: "Publication Sécurisée",
-                roomTitle: "Chambre des Transactions Vérifiées",
-                modalTitle: "Portail d'Accès Sécurisé",
-                modalDesc: "Utilisez votre email professionnel et un mot de passe fort.",
-                signinBtn: "Connexion",
-                signupBtn: "Demander l'Adhésion",
-                msgModalTitle: "Boîte de Messages Privés",
-                sendBtn: "Envoyer",
-                privateMsgBtn: "Contacter l'Investisseur"
-            }
-        };
-
-        function setLanguage(lang) {
-            localStorage.setItem('preferred_lang', lang);
-            const t = translations[lang] || translations.ar;
-            document.getElementById('html-root').setAttribute('dir', t.dir);
-            document.getElementById('html-root').setAttribute('lang', lang);
-            
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) el.textContent = t[key];
-            });
-        }
-
-        document.getElementById('lang-switcher').addEventListener('change', (e) => {
-            setLanguage(e.target.value);
-        });
-
-        (() => {
-            'use strict';
-
-            const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
-            const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-            const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-            let currentUserProfile = null;
-            let currentReceiverId = null;
-            let lastPostTime = 0;
-
-            const views = {
-                landing: document.getElementById('landing-view'),
-                pending: document.getElementById('pending-view'),
-                dashboard: document.getElementById('dashboard-view'),
-                authModal: document.getElementById('auth-modal'),
-                msgModal: document.getElementById('messages-modal'),
-                authBtns: document.getElementById('auth-buttons'),
-                userMenu: document.getElementById('user-menu')
-            };
-
-            const savedLang = localStorage.getItem('preferred_lang') || 'ar';
-            document.getElementById('lang-switcher').value = savedLang;
-            setLanguage(savedLang);
-
-            function isStrongPassword(pw) {
-                return pw.length >= 10 && /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /[0-9]/.test(pw);
-            }
-
-            function sanitizeInput(str) {
-                return String(str).trim().replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
-            }
-
-            function showAuthMsg(text, isError = false) {
-                const msgEl = document.getElementById('auth-message');
-                msgEl.textContent = text;
-                msgEl.className = `text-sm mt-4 text-center ${isError ? 'text-red-400' : 'text-emerald-400'}`;
-            }
-
-            async function initApp() {
-                const { data: { session } } = await sb.auth.getSession();
-                if (!session) {
-                    setView('landing');
-                    return;
-                }
-
-                const { data: profile, error } = await sb
-                    .from('profiles')
-                    .select('id, full_name, is_verified, role')
-                    .eq('id', session.user.id)
-                    .single();
-
-                if (error || !profile) {
-                    await sb.auth.signOut();
-                    setView('landing');
-                    return;
-                }
-
-                currentUserProfile = profile;
-                document.getElementById('user-badge').textContent = profile.is_verified ? `✓ ${profile.full_name}` : 'Pending Review';
-
-                if (profile.is_verified) {
-                    setView('dashboard');
-                    loadSecureDeals();
-                } else {
-                    setView('pending');
-                }
-            }
-
-            function setView(state) {
-                views.landing.classList.add('hidden');
-                views.pending.classList.add('hidden');
-                views.dashboard.classList.add('hidden');
-                views.authModal.classList.add('hidden');
-                views.msgModal.classList.add('hidden');
-
-                if (state === 'landing') {
-                    views.landing.classList.remove('hidden');
-                    views.authBtns.classList.remove('hidden');
-                    views.userMenu.classList.add('hidden');
-                } else {
-                    views.authBtns.classList.add('hidden');
-                    views.userMenu.classList.remove('hidden');
-                    if (state === 'pending') views.pending.classList.remove('hidden');
-                    if (state === 'dashboard') views.dashboard.classList.remove('hidden');
-                }
-            }
-
-            document.getElementById('auth-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = sanitizeInput(document.getElementById('email').value);
-                const password = document.getElementById('password').value;
-
-                const { error } = await sb.auth.signInWithPassword({ email, password });
-                if (error) {
-                    showAuthMsg("Invalid credentials or account not verified.", true);
-                } else {
-                    initApp();
-                }
-            });
-
-            document.getElementById('btn-signup').addEventListener('click', async () => {
-                const fullName = sanitizeInput(document.getElementById('full-name').value);
-                const email = sanitizeInput(document.getElementById('email').value);
-                const password = document.getElementById('password').value;
-
-                if (fullName.length < 3) return showAuthMsg("Please enter your full name or fund name.", true);
-                if (!isStrongPassword(password)) return showAuthMsg("Password must be 10+ chars with uppercase, lowercase, and numbers.", true);
-
-                const { data, error } = await sb.auth.signUp({ email, password });
-                if (error) return showAuthMsg("Registration failed. Check your email.", true);
-
-                if (data.user) {
-                    await sb.from('profiles').insert([{ id: data.user.id, email: email, full_name: fullName }]);
-                    showAuthMsg("Registration request sent! Check your email to confirm and wait for admin approval.");
-                }
-            });
-
-            document.getElementById('deal-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                if (document.getElementById('website_url_hp').value !== "") return;
-                if (Date.now() - lastPostTime < 10000) return alert("Please wait a moment before posting another opportunity.");
-
-                const title = sanitizeInput(document.getElementById('deal-title').value);
-                const sector = sanitizeInput(document.getElementById('deal-sector').value);
-                const description = sanitizeInput(document.getElementById('deal-desc').value);
-
-                const { data: { user } } = await sb.auth.getUser();
-                if (!user || !currentUserProfile?.is_verified) return;
-
-                const btn = document.getElementById('submit-deal-btn');
-                btn.disabled = true;
-
-                const { error } = await sb.from('deals').insert([{
-                    user_id: user.id,
-                    author_name: currentUserProfile.full_name,
-                    title,
-                    sector,
-                    description
-                }]);
-
-                btn.disabled = false;
-
-                if (error) {
-                    alert("Action rejected: Check permissions or wait 5 minutes between posts.");
-                } else {
-                    lastPostTime = Date.now();
-                    document.getElementById('deal-form').reset();
-                    loadSecureDeals();
-                }
-            });
-
-            async function loadSecureDeals() {
-                const container = document.getElementById('deals-container');
-                container.textContent = "Loading secure data...";
-
-                const { data, error } = await sb
-                    .from('deals')
-                    .select('id, user_id, created_at, author_name, title, sector, description')
-                    .order('created_at', { ascending: false })
-                    .limit(30);
-
-                container.textContent = "";
-
-                if (error || !data || data.length === 0) {
-                    container.textContent = "No active deals found or permissions not verified.";
-                    return;
-                }
-
-                data.forEach(deal => {
-                    const card = document.createElement('div');
-                    card.className = "bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-md";
-
-                    const header = document.createElement('div');
-                    header.className = "flex justify-between items-center mb-2";
-
-                    const badge = document.createElement('span');
-                    badge.className = "text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full";
-                    badge.textContent = deal.sector;
-
-                    const date = document.createElement('span');
-                    date.className = "text-xs text-slate-500";
-                    date.textContent = new Date(deal.created_at).toLocaleDateString();
-
-                    header.append(badge, date);
-
-                    const title = document.createElement('h3');
-                    title.className = "text-lg font-bold text-white mt-2";
-                    title.textContent = deal.title;
-
-                    const desc = document.createElement('p');
-                    desc.className = "text-slate-400 text-sm mt-2 leading-relaxed whitespace-pre-line";
-                    desc.textContent = deal.description;
-
-                    const footer = document.createElement('div');
-                    footer.className = "mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400 flex justify-between items-center";
-                    
-                    const author = document.createElement('span');
-                    author.textContent = `Verified Investor: ${deal.author_name}`;
-
-                    footer.appendChild(author);
-
-                    // زر مراسلة صاحب الفرصة (إلا إيلا كان هو نيت صاحب الحساب)
-                    if (deal.user_id !== currentUserProfile.id) {
-                        const msgBtn = document.createElement('button');
-                        msgBtn.className = "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold transition";
-                        msgBtn.textContent = translations[savedLang].privateMsgBtn || "مراسلة المستثمر";
-                        msgBtn.onclick = () => openMessages(deal.user_id, deal.id);
-                        footer.appendChild(msgBtn);
-                    }
-
-                    card.append(header, title, desc, footer);
-                    container.appendChild(card);
-                });
-            }
-
-            // فتح نافذة الرسائل
-            async function openMessages(receiverId = null, dealId = null) {
-                currentReceiverId = receiverId;
-                views.msgModal.classList.remove('hidden');
-                const listContainer = document.getElementById('messages-list');
-                const replyForm = document.getElementById('reply-form');
-                
-                listContainer.textContent = "Loading messages...";
-
-                const { data, error } = await sb
-                    .from('messages')
-                    .select('*')
-                    .or(`sender_id.eq.${currentUserProfile.id},receiver_id.eq.${currentUserProfile.id}`)
-                    .order('created_at', { ascending: true });
-
-                listContainer.textContent = "";
-
-                if (error || !data || data.length === 0) {
-                    listContainer.textContent = "No messages yet. Start a conversation from any deal room.";
-                    if (receiverId) replyForm.classList.remove('hidden');
-                    return;
-                }
-
-                data.forEach(msg => {
-                    const bubble = document.createElement('div');
-                    const isMe = msg.sender_id === currentUserProfile.id;
-                    bubble.className = `p-3 rounded-xl text-sm max-w-[80%] ${isMe ? 'bg-emerald-500/10 text-emerald-300 mr-auto border border-emerald-500/20' : 'bg-slate-800 text-slate-200 ml-auto'}`;
-                    bubble.textContent = `${msg.sender_name}: ${msg.content}`;
-                    listContainer.appendChild(bubble);
-                });
-
-                if (receiverId) replyForm.classList.remove('hidden');
-                listContainer.scrollTop = listContainer.scrollHeight;
-            }
-
-            // إرسال رد أو رسالة جديدة
-            document.getElementById('reply-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                if (!currentReceiverId) return;
-
-                const content = sanitizeInput(document.getElementById('reply-content').value);
-                if (content.length < 2) return;
-
-                const { error } = await sb.from('messages').insert([{
-                    sender_id: currentUserProfile.id,
-                    sender_name: currentUserProfile.full_name,
-                    receiver_id: currentReceiverId,
-                    content: content
-                }]);
-
-                if (!error) {
-                    document.getElementById('reply-content').value = "";
-                    openMessages(currentReceiverId);
-                } else {
-                    alert("Failed to send message.");
-                }
-            });
-
-            document.getElementById('btn-open-modal').addEventListener('click', () => views.authModal.classList.remove('hidden'));
-            document.getElementById('btn-hero-join').addEventListener('click', () => views.authModal.classList.remove('hidden'));
-            document.getElementById('btn-close-modal').addEventListener('click', () => views.authModal.classList.add('hidden'));
-            document.getElementById('btn-open-messages').addEventListener('click', () => openMessages());
-            document.getElementById('btn-close-messages').addEventListener('click', () => views.msgModal.classList.add('hidden'));
-            document.getElementById('btn-logout').addEventListener('click', async () => {
-                await sb.auth.signOut();
-                currentUserProfile = null;
-                setView('landing');
-            });
-
-            initApp();
-        })();
-    </script>
-</body>
-</html>
+    <!-- ن
