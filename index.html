@@ -1,145 +1,92 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="html-root">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusInvest | شبكة المستثمرين الموثقين</title>
-    <!-- استدعاء Tailwind للتصميم -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>NexusInvest - شبكة المستثمرين</title>
+    <style>
+        body { background-color: #030712; color: #f8fafc; font-family: Tahoma, sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; text-align: center; padding: 40px 20px; }
+        h1 { color: #34d399; font-size: 2.5em; }
+        p { color: #94a3b8; font-size: 1.2em; }
+        .btn { background-color: #10b981; color: #030712; padding: 15px 30px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 1em; margin-top: 20px; }
+        .btn:hover { background-color: #059669; }
+        .box { background-color: #1e293b; border: 1px solid #334155; padding: 20px; border-radius: 12px; margin-top: 30px; text-align: right; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 10px 0; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 6px; box-sizing: border-box; }
+        .hidden { display: none; }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between">
+<body>
 
-    <!-- شريط التنقل العلوي -->
-    <nav class="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="text-2xl font-bold text-emerald-400 cursor-pointer" onclick="goHome()">Nexus<span class="text-white">Invest</span></div>
+    <div class="container">
+        <h1>NexusInvest</h1>
+        <p>منصة تفاعلية لتبادل الخبرات والصفقات بين المستثمرين</p>
+        
+        <button class="btn" onclick="openModal()">اضغط هنا لتسجيل الدخول التجريبي</button>
+
+        <div id="dashboard" class="box hidden">
+            <h2 style="color: #34d399;">لوحة تحكم المستثمر الموثق</h2>
+            <p>أهلاً بك، تم فتح المنصة بنجاح!</p>
             
-            <div class="flex items-center gap-3">
-                <!-- تغيير اللغات -->
-                <select id="lang-switcher" class="bg-slate-950 border border-slate-700 text-slate-300 text-xs rounded-lg px-2 py-1.5 outline-none cursor-pointer">
-                    <option value="ar">العربية</option>
-                    <option value="en">English</option>
-                    <option value="fr">Français</option>
-                </select>
+            <hr style="border-color: #334155; margin: 20px 0;">
 
-                <!-- أزرار الدخول -->
-                <div id="auth-buttons">
-                    <button type="button" id="open-modal-btn" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 text-sm rounded-lg transition cursor-pointer">دخول المستثمرين</button>
-                </div>
+            <h3>طرح فرصة استثمارية جديدة</h3>
+            <input type="text" id="dealTitle" placeholder="عنوان الفرصة (مثال: مشروع تكنولوجي)">
+            <textarea id="dealDesc" rows="3" placeholder="تفاصيل الفرصة الاستثمارية..."></textarea>
+            <button class="btn" onclick="postDeal()" style="padding: 10px 20px;">نشر في الغرفة</button>
 
-                <!-- قائمة المستخدم (تظهر بعد الدخول) -->
-                <div id="user-menu" class="hidden flex items-center gap-3">
-                    <button type="button" id="open-msg-btn" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 px-3 py-1.5 rounded-lg border border-slate-700 transition cursor-pointer">الرسائل الخاصة</button>
-                    <span id="user-badge" class="text-xs px-3 py-1.5 rounded-full bg-slate-800 text-emerald-400 border border-emerald-500/30">✓ مستثمر موثق</span>
-                    <button type="button" id="logout-btn" class="text-xs bg-slate-800 hover:bg-red-500/20 hover:text-red-400 px-3 py-1.5 rounded-lg border border-slate-700 transition cursor-pointer">خروج</button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- المحتوى الأساسي -->
-    <main class="flex-grow">
-        <!-- واجهة الترحيب -->
-        <section id="landing-view" class="max-w-5xl mx-auto px-4 py-20 text-center">
-            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-4 py-1.5 rounded-full text-sm font-medium">بيئة مشفرة ومغلقة للمستثمرين الموثقين</span>
-            <h1 class="text-4xl md:text-6xl font-extrabold mt-6 leading-tight">شبكة نخبة المستثمرين لتبادل الخبرات والصفقات</h1>
-            <p class="text-slate-400 text-lg mt-6 max-w-2xl mx-auto">كل حساب يخضع للتحقق اليدوي الصارم قبل الوصول إلى غرف الصفقات أو بيانات الأعضاء الحصرية.</p>
-            <div class="mt-10">
-                <button type="button" id="hero-join-btn" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-8 py-4 rounded-xl text-lg transition cursor-pointer">تقديم طلب انضمام</button>
-            </div>
-        </section>
-
-        <!-- لوحة التحكم وغرفة الصفقات -->
-        <section id="dashboard-view" class="hidden max-w-6xl mx-auto px-4 py-10">
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- نموذج إضافة فرصة -->
-                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl h-fit">
-                    <h2 class="text-xl font-bold mb-4 text-emerald-400">طرح فرصة استثمارية</h2>
-                    <form id="deal-form" class="space-y-4">
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">عنوان الفرصة</label>
-                            <input type="text" id="deal-title" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-emerald-500 outline-none" placeholder="مثال: جولة تمويلية FinTech">
-                        </div>
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">القطاع</label>
-                            <select id="deal-sector" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white outline-none">
-                                <option value="التكنولوجيا والذكاء الاصطناعي">التكنولوجيا والذكاء الاصطناعي</option>
-                                <option value="العقار والبنية التحتية">العقار والبنية التحتية</option>
-                                <option value="الطاقة المتجددة">الطاقة المتجددة</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm text-slate-400 mb-1">التفاصيل المالية والضمانات</label>
-                            <textarea id="deal-desc" required rows="4" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-emerald-500 outline-none" placeholder="اشرح تفاصيل العائد والمبلغ المطلوب..."></textarea>
-                        </div>
-                        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-lg transition cursor-pointer">نشر آمن</button>
-                    </form>
-                </div>
-                <!-- عرض الصفقات -->
-                <div class="md:col-span-2 space-y-4">
-                    <h2 class="text-xl font-bold mb-4">غرفة الصفقات الموثقة</h2>
-                    <div id="deals-container" class="space-y-4">
-                        <!-- عينة صفقة -->
-                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-md">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full">التكنولوجيا والذكاء الاصطناعي</span>
-                                <span class="text-xs text-slate-500">2026/06/06</span>
-                            </div>
-                            <h3 class="text-lg font-bold text-white mt-2">منصة إفريقية للخدمات اللوجستية</h3>
-                            <p class="text-slate-400 text-sm mt-2 leading-relaxed">نبحث عن مستثمرين لشراكة استراتيجية في التوسع الإقليمي. الحد الأدنى للتذكرة 30,000 دولار.</p>
-                            <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400 flex justify-between items-center">
-                                <span>✓ Atlas Ventures</span>
-                                <button type="button" onclick="alert('تم فتح نافذة المراسلة الخاصة!')" class="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">مراسلة المستثمر</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- نافذة تسجيل الدخول (Modal) -->
-    <div id="auth-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 max-w-md w-full p-6 rounded-2xl relative">
-            <button type="button" id="close-modal-btn" class="absolute top-4 left-4 text-slate-400 hover:text-white text-2xl cursor-pointer">&times;</button>
-            <h3 class="text-2xl font-bold mb-2">بوابة الدخول الآمن</h3>
-            <p class="text-sm text-slate-400 mb-6">أدخل بريدك المهني لتسجيل الدخول التجريبي الفوري.</p>
-            <form id="login-form" class="space-y-4">
-                <input type="text" id="login-name" required placeholder="اسم المستثمر أو الصندوق" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-emerald-500">
-                <input type="email" id="login-email" required placeholder="البريد الإلكتروني المهني" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white outline-none focus:border-emerald-500">
-                <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-lg transition cursor-pointer">دخول للمنصة</button>
-            </form>
+            <div id="dealsList" style="margin-top: 20px;"></div>
         </div>
     </div>
 
-    <!-- نافذة الرسائل الخاصة -->
-    <div id="msg-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 max-w-lg w-full p-6 rounded-2xl relative flex flex-col h-[60vh]">
-            <button type="button" id="close-msg-btn" class="absolute top-4 left-4 text-slate-400 hover:text-white text-2xl cursor-pointer">&times;</button>
-            <h3 class="text-xl font-bold mb-4 text-emerald-400">الرسائل الخاصة المشفرة</h3>
-            <div class="flex-grow overflow-y-auto space-y-3 p-4 border border-slate-800 rounded-xl bg-slate-950 mb-4 text-sm">
-                <div class="bg-slate-800 text-slate-200 p-3 rounded-xl max-w-[80%]">Atlas Ventures: مرحباً بك معنا في المنصة.</div>
-            </div>
-            <div class="flex gap-2">
-                <input type="text" placeholder="اكتب رسالة..." class="flex-grow bg-slate-950 border border-slate-700 rounded-lg p-3 text-white outline-none text-sm">
-                <button type="button" onclick="alert('تم إرسال الرسالة بنجاح!')" class="bg-emerald-500 text-slate-950 font-bold px-4 rounded-lg text-sm cursor-pointer">إرسال</button>
-            </div>
+    <!-- النافذة المنسدلة -->
+    <div id="myModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center;">
+        <div style="background:#1e293b; padding:30px; border-radius:12px; width:90%; max-width:400px; text-align:right; position:relative;">
+            <span onclick="closeModal()" style="position:absolute; top:10px; left:15px; cursor:pointer; font-size:24px; color:#94a3b8;">&times;</span>
+            <h3 style="color: white; margin-top:0;">تسجيل الدخول للمنصة</h3>
+            <input type="text" id="userName" placeholder="اسم المستثمر أو الصندوق">
+            <input type="email" placeholder="البريد الإلكتروني المهني">
+            <button class="btn" onclick="login()" style="width:100%;">دخول الآن</button>
         </div>
     </div>
 
-    <!-- البرمجة البسيطة لتفعيل الأزرار فوراً -->
     <script>
-        const authModal = document.getElementById('auth-modal');
-        const msgModal = document.getElementById('msg-modal');
-        const landingView = document.getElementById('landing-view');
-        const dashboardView = document.getElementById('dashboard-view');
-        const authButtons = document.getElementById('auth-buttons');
-        const userMenu = document.getElementById('user-menu');
+        function openModal() {
+            document.getElementById('myModal').style.display = 'flex';
+        }
 
-        // فتح وإغلاق النوافذ
-        document.getElementById('open-modal-btn').addEventListener('click', () => authModal.classList.remove('hidden'));
-        document.getElementById('hero-join-btn').addEventListener('click', () => authModal.classList.remove('hidden'));
-        document.getElementById('close-modal-btn').addEventListener('click', () => authModal.classList.add('hidden'));
+        function closeModal() {
+            document.getElementById('myModal').style.display = 'none';
+        }
 
-        document.getElementById('open-msg-btn').addEventListener('click', () => msgModal.classList.remove('hidden'));
-        document.getElementById('close-msg-
+        function login() {
+            const name = document.getElementById('userName').value;
+            if(!name) {
+                alert('المرجو ادخال الاسم!');
+                return;
+            }
+            closeModal();
+            document.getElementById('dashboard').classList.remove('hidden');
+            alert('مرحباً بك ' + name + '، تم تفعيل لوحة التحكم بنجاح!');
+        }
+
+        function postDeal() {
+            const title = document.getElementById('dealTitle').value;
+            const desc = document.getElementById('dealDesc').value;
+            if(!title || !desc) {
+                alert('المرجو ملء جميع الحقول!');
+                return;
+            }
+
+            const list = document.getElementById('dealsList');
+            const card = document.createElement('div');
+            card.style.cssText = "background:#0f172a; padding:15px; border-radius:8px; margin-top:10px; border-right:4px solid #10b981;";
+            card.innerHTML = `<h4 style="margin:0 0 5px 0; color:white;">${title}</h4><p style="margin:0; color:#94a3b8; font-size:0.9em;">${desc}</p>`;
+            list.prepend(card);
+
+            document.getElementById('dealTitle').value = '';
+            document.getElementById('dealDesc').value = '';
+            alert('تم نشر الفرصة بنجاح!');
+        }
+    </script>
+</body>
+</html>
